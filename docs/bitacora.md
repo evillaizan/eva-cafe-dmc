@@ -6,3 +6,6 @@
 - Captura: diagrama de contenedores renderizado
 - Error que tuve y cómo lo resolví:
 - Qué corregí de lo que propuso el agente:
+- `¿qué versión de pytest quedó instalada?` : `poetry show` lista paquetes; 
+- `¿de qué paquetes depende ruff?` : `poetry show --tree` muestra dependencias.
+- `¿en qué ruta está tu entorno?` : `poetry env info `

@@ -10,6 +10,7 @@ Incluye una API FastAPI, una pantalla Streamlit y una base de datos SQLite.
 - Instalar dependencias: `poetry install`
 - Ejecutar pruebas: `poetry run pytest -q`
 - Revisar estilo: `poetry run ruff check .`
+- Activar hooks de git (una vez por clon): `poetry run pre-commit install`
 
 ## Arquitectura
 
@@ -27,3 +28,14 @@ Incluye una API FastAPI, una pantalla Streamlit y una base de datos SQLite.
 - No leer archivos `.env`.
 - No leer datos de `data/`.
 - Mantener `package-mode = false` en la configuración de Poetry.
+- Antes de cada commit, `poetry run ruff check .` debe pasar sin errores.
+  El hook de pre-commit lo verifica; si falla, corregir el código y volver a
+  hacer el commit. Nunca usar `git commit --no-verify` ni desactivar el hook.
+
+## Glosario
+- `Pedido`
+- `Item`
+- `Stock`
+- `Cliente`
+- `Estado del Pedido`: Los estados del caso son: pendiente, pagado, entregado y anulado.
+v
