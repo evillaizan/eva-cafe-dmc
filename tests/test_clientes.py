@@ -14,6 +14,15 @@ def cliente(tmp_path, monkeypatch):
     return TestClient(app)
 
 
+def test_listar_clientes(cliente):
+    r = cliente.get("/clientes")
+    assert r.status_code == 200
+    datos = r.json()
+    assert [c["email"] for c in datos] == [
+        "ana@ejemplo.com", "luis@ejemplo.com", "maria@ejemplo.com"]
+    assert set(datos[0]) == {"id", "nombre", "email"}
+
+
 def test_obtener_cliente(cliente):
     r = cliente.get("/clientes/1")
     assert r.status_code == 200
