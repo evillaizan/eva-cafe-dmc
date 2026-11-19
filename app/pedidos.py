@@ -54,6 +54,20 @@ def obtener_pedido(pedido_id: int, con: Conexion):
     return dict(fila)
 
 
+def pedidos_de_cliente(con, cliente_id: int) -> list[dict]:
+    """Historial de un cliente, del más reciente al más antiguo.
+
+    No es un endpoint: lo usa app/clientes.py para que la tabla pedidos
+    solo se consulte desde este módulo.
+    """
+    filas = con.execute(
+        "SELECT id, cliente_id, estado, total, fecha FROM pedidos"
+        " WHERE cliente_id = ? ORDER BY fecha DESC, id DESC",
+        (cliente_id,),
+    ).fetchall()
+    return [dict(f) for f in filas]
+
+
 @router.patch("/{pedido_id}/estado", response_model=Pedido)
 def cambiar_estado(pedido_id: int, datos: CambioEstado, con: Conexion):
     """Cambia el estado del pedido si la transición está permitida en TRANSICIONES."""

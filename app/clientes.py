@@ -2,7 +2,8 @@
 from fastapi import APIRouter, HTTPException
 
 from app.db import Conexion
-from app.modelos import Cliente
+from app.modelos import Cliente, PedidoHistorial
+from app.pedidos import pedidos_de_cliente
 
 router = APIRouter(prefix="/clientes", tags=["clientes"])
 
@@ -21,3 +22,10 @@ def obtener_cliente(cliente_id: int, con: Conexion):
     if fila is None:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
     return dict(fila)
+
+
+@router.get("/{cliente_id}/pedidos", response_model=list[PedidoHistorial])
+def historial_de_pedidos(cliente_id: int, con: Conexion):
+    if con.execute(SQL_BASE + " WHERE id = ?", (cliente_id,)).fetchone() is None:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return pedidos_de_cliente(con, cliente_id)

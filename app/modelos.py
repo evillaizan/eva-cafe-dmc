@@ -37,6 +37,11 @@ class Pedido(BaseModel):
     total: float
 
 
+class PedidoHistorial(Pedido):
+    """Pedido con su fecha, para el historial de un cliente."""
+    fecha: str
+
+
 class CambioEstado(BaseModel):
     """Cuerpo de PATCH /pedidos/{id}/estado: el nuevo estado del pedido."""
     estado: EstadoPedido

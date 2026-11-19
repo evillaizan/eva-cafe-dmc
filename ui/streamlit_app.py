@@ -34,3 +34,25 @@ with st.form("pedido"):
             st.success(f"Pedido #{r.json()['id']} creado. Total: S/ {r.json()['total']:.2f}")
         else:
             st.error(f"Error {r.status_code}: {r.json().get('detail')}")
+
+st.subheader("Mis pedidos")
+with st.form("historial"):
+    id_historial = st.number_input("Tu ID de cliente", min_value=1, value=1, key="id_historial")
+    consultar = st.form_submit_button("Ver mis pedidos")
+if consultar:
+    r = httpx.get(f"{API}/clientes/{int(id_historial)}/pedidos", timeout=5)
+    if r.status_code == 404:
+        st.warning(f"No existe el cliente {int(id_historial)}.")
+    elif r.status_code != 200:
+        st.error(f"Error {r.status_code}: {r.json().get('detail')}")
+    elif not r.json():
+        st.info("Todavía no tienes pedidos.")
+    else:
+        pedidos = r.json()
+        st.dataframe(
+            [{"Pedido": p["id"], "Fecha": p["fecha"], "Estado": p["estado"],
+              "Total (S/)": p["total"]} for p in pedidos],
+            width="stretch", hide_index=True,
+        )
+        gastado = sum(p["total"] for p in pedidos if p["estado"] != "anulado")
+        st.caption(f"{len(pedidos)} pedido(s) · Total gastado (sin anulados): S/ {gastado:.2f}")
