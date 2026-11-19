@@ -1,5 +1,9 @@
 """Contratos (Pydantic) de la API. Son la 'especificación' que lee el agente."""
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+EstadoPedido = Literal["pendiente", "pagado", "entregado", "anulado"]
 
 
 class Producto(BaseModel):
@@ -31,3 +35,8 @@ class Pedido(BaseModel):
     cliente_id: int
     estado: str
     total: float
+
+
+class CambioEstado(BaseModel):
+    """Cuerpo de PATCH /pedidos/{id}/estado: el nuevo estado del pedido."""
+    estado: EstadoPedido

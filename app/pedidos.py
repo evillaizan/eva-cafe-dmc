@@ -2,9 +2,17 @@
 from fastapi import APIRouter, HTTPException
 
 from app.db import Conexion
-from app.modelos import Pedido, PedidoNuevo
+from app.modelos import CambioEstado, Pedido, PedidoNuevo
 
 router = APIRouter(prefix="/pedidos", tags=["pedidos"])
+
+# Máquina de estados del pedido: estado actual -> estados a los que puede pasar
+TRANSICIONES = {
+    "pendiente": {"pagado", "anulado"},
+    "pagado": {"entregado", "anulado"},
+    "entregado": set(),
+    "anulado": set(),
+}
 
 
 @router.post("", response_model=Pedido, status_code=201)
@@ -44,3 +52,23 @@ def obtener_pedido(pedido_id: int, con: Conexion):
     if fila is None:
         raise HTTPException(status_code=404, detail="Pedido no encontrado")
     return dict(fila)
+
+
+@router.patch("/{pedido_id}/estado", response_model=Pedido)
+def cambiar_estado(pedido_id: int, datos: CambioEstado, con: Conexion):
+    """Cambia el estado del pedido si la transición está permitida en TRANSICIONES."""
+    fila = con.execute("SELECT id, cliente_id, estado, total FROM pedidos WHERE id = ?",
+                       (pedido_id,)).fetchone()
+    if fila is None:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
+    actual = fila["estado"]
+    if datos.estado not in TRANSICIONES.get(actual, set()):
+        raise HTTPException(status_code=409,
+                            detail=f"Transición no permitida: {actual} → {datos.estado}")
+    with con:  # solo actualiza si nadie cambió el estado desde que lo leímos
+        cur = con.execute("UPDATE pedidos SET estado = ? WHERE id = ? AND estado = ?",
+                          (datos.estado, pedido_id, actual))
+    if cur.rowcount == 0:
+        raise HTTPException(status_code=409,
+                            detail=f"Transición no permitida: el pedido ya no está en {actual}")
+    return {**dict(fila), "estado": datos.estado}
