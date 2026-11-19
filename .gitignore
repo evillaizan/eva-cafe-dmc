@@ -10,3 +10,4 @@ logs/
 .gemini/
 .codex/
 .agents/mcp_config.json
+db/*.db
