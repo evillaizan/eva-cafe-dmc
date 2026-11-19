@@ -10,6 +10,12 @@ class Producto(BaseModel):
     stock: int
 
 
+class Cliente(BaseModel):
+    id: int
+    nombre: str
+    email: str
+
+
 class ItemPedido(BaseModel):
     producto_id: int
     cantidad: int = Field(gt=0, le=20)
